@@ -1,104 +1,142 @@
- # Unsupervised Face Clustering & Explainable AI (XAI) Interpretation
-This project implements an end-to-end unsupervised learning pipeline to cluster facial images from the Labeled Faces in the Wild (LFW) dataset. Beyond standard clustering, it incorporates Explainable AI (XAI) techniques to interpret the latent features (such as lighting, pose, and expression), driving the grouping decisions without utilizing ground-truth identity labels.
+# **Unsupervised Face Clustering & Explainable AI (XAI) Interpretation**
 
-📌 Project Overview
-The primary objective is to organize facial data based on intrinsic visual similarities and provide transparency into the "black box" of unsupervised algorithms.
+This project builds an end-to-end unsupervised learning pipeline to cluster facial images from the **Labeled Faces in the Wild (LFW)** dataset. Instead of relying on identity labels, the system groups faces based purely on visual similarity—then explains *why* those groups emerged using modern XAI techniques.
 
-Dimensionality Reduction: Compressed 16,000+ pixel features into compact embeddings while retaining 95% variance.
+The goal is to make unsupervised systems more transparent by uncovering the hidden visual factors (lighting, expression, pose) that drive clustering behavior.
 
-Clustering: Evaluated multiple algorithms to group faces based on latent structures.
+---
 
-Interpretability (XAI): Applied post-hoc analysis to understand why specific faces were clustered together using surrogate modeling and feature attribution.
+## ⭐ **Project Highlights**
 
-🛠️ Methodology & Pipeline
-1. Data Preprocessing & Balancing
-Dataset: LFW (Deepfunneled), resized to 250x250 grayscale.
+* ✔️ 16,000+ pixel features compressed into compact PCA embeddings
+* ✔️ Multiple clustering algorithms benchmarked (KMeans, Hierarchical, DBSCAN, SOM)
+* ✔️ XAI analysis using SHAP, LIME, and PCA component back-projection
+* ✔️ Synthetic rebalancing to correct dataset imbalance (ADASYN + Tomek Links)
+* ✔️ Pixel-level heatmaps showing which facial regions influence clustering
 
-Imbalance Handling: Implemented a hybrid sampling strategy to ensure fair representation:
+---
 
+## 🧠 **Pipeline Overview**
 
-Undersampling: Applied Tomek Links to clean overlapping boundary points.
+### **1. Data Preparation & Balancing**
 
+* **Dataset**: LFW (deepfunneled), resized to **250×250 grayscale**
+* **Imbalance Handling**:
 
+  * **Tomek Links undersampling** to clean boundary noise
+  * **ADASYN oversampling** to generate synthetic examples for rare classes
 
-Oversampling: Used ADASYN to generate synthetic samples for underrepresented individuals.
+This ensures more stable clustering by reducing class dominance from highly photographed individuals.
 
+---
 
-2. Unsupervised Learning (Clustering)
+### **2. Dimensionality Reduction**
 
-Feature Extraction: Principal Component Analysis (PCA) reduced dimensions from 62,500 to ~248 components.
+Faces (250×250 = 62,500 pixels) are transformed into compact embeddings using:
 
-Algorithms Evaluated:
+* **Principal Component Analysis (PCA)**
+* Retained **95% variance**, resulting in **~248 principal components**
 
+These components represent latent facial factors such as lighting gradients, pose variations, and structural symmetry.
 
-K-Means (k=7): Achieved the best separation and cohesion.
+---
 
-Hierarchical Clustering: Used Ward’s linkage for dendrogram analysis.
+### **3. Unsupervised Clustering**
 
+Multiple algorithms were evaluated:
 
-DBSCAN: Tested for density-based grouping (found unsuitable for this high-dimensional feature space).
+| Algorithm    | Silhouette ↑ | Davies-Bouldin ↓ | Calinski-Harabasz ↑ |
+| ------------ | ------------ | ---------------- | ------------------- |
+| **K-Means**  | **0.040**    | **3.35**         | **252.14**          |
+| Hierarchical | 0.031        | 3.97             | 199.71              |
+| DBSCAN       | 0.024        | 2.98             | 46.84               |
 
+**K-Means with k=7** offered the most stable grouping in the latent space.
 
-Self-Organizing Maps (SOM): Utilized for topological visualization and similarity search.
+Additionally:
 
-3. Knowledge Representation & XAI
-To interpret the clusters, a surrogate Random Forest classifier was trained on the cluster labels to enable feature attribution:
+* **Hierarchical Clustering** helped visualize dendrogram relationships
+* **Self-Organizing Maps (SOM)** provided a topology-preserving projection
+* **DBSCAN** proved unsuitable due to high-dimensional sparsity
 
+---
 
-SHAP (SHapley Additive exPlanations): Quantified the global impact of specific PCA components on cluster formation.
+### **4. Explainable AI (XAI) Analysis**
 
+A **Random Forest surrogate model** was trained on cluster labels to enable interpretation.
 
-LIME (Local Interpretable Model-agnostic Explanations): Explained individual predictions to detect local variances.
+#### 🔍 **Global Explanations (SHAP)**
 
+* Identified which PCA components most influenced clustering
+* Revealed that lighting direction, contrast patterns, and head tilt dominated decisions
 
-Pixel-Level Heatmaps: Back-projected important components to visualize facial regions (e.g., eyes, mouth) influencing the grouping.
+#### 🎯 **Local Explanations (LIME)**
 
-📂 Repository Structure
-Bash
+* Explained individual image cluster assignments
+* Highlighted subtle distinctions between similar-looking faces
 
-├── data-preparation.ipynb  # Dataset curation, filtering, and initial processing
-├── model-dev.ipynb         # Sampling (Tomek/ADASYN), PCA, and Clustering implementation
-├── visual.ipynb            # Interactive 3D visualizations, Surrogate Modeling, and XAI (SHAP/LIME) analysis
-├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
-📊 Key Results
-Metric	K-Means	Hierarchical	DBSCAN
-Silhouette Score (Higher is better)	0.040	0.031	0.024
-Davies-Bouldin (Lower is better)	3.35	3.97	2.98
-Calinski-Harabasz (Higher is better)	252.14	199.71	46.84
+#### 🎨 **Pixel-Level Heatmaps**
 
-Export to Sheets
+PCA components were reconstructed back into image space to reveal:
 
-XAI Insights:
+* Eyes
+* Mouth shape
+* Forehead lighting
+* Shadow/color gradients
 
-Clusters were primarily driven by lighting conditions and head pose rather than distinct facial identities.
+These were the strongest drivers of clustering.
 
-Feature heatmaps confirmed that the algorithms focused heavily on high-contrast regions like the eyes and mouth to separate groups.
+---
 
-🚀 Usage
-Clone the repo:
+## 📁 **Repository Structure**
 
-Bash
+```
+📂 unsupervised-face-clustering-and-analysis-using-lfw-dataset/
+│
+├── data-preparation.ipynb       # Filtering, balancing, preprocessing
+├── model-dev.ipynb              # PCA, clustering algorithms, performance metrics
+├── visual.ipynb                 # SHAP, LIME, heatmaps, interactive visualization
+├── requirements.txt             # Dependencies
+└── README.md                    # Project documentation
+```
 
-git clone [https://github.com/UmarAftab174/unsupervised-face-clustering-and-analysis-using-lfw-dataset/](https://github.com/UmarAftab174/unsupervised-face-clustering-and-analysis-using-lfw-dataset/tree/main)
-Install dependencies:
+---
 
-Bash
+## 🧠 **Key Insights from XAI**
 
+* Clusters correlate more strongly with **lighting direction**, **pose**, and **contrast** than with true identity.
+* High-contrast regions—**eyes, eyebrows, mouth**—carry the highest explanatory weight.
+* Subtle PCA components encode facial geometry, while early components capture lighting and shading trends.
+* Unsupervised models form *perceptual* clusters, not identity clusters.
+
+---
+
+## 🚀 **How to Use**
+
+### **1. Clone the Repository**
+
+```bash
+git clone https://github.com/UmarAftab174/unsupervised-face-clustering-and-analysis-using-lfw-dataset/
+```
+
+### **2. Install Requirements**
+
+```bash
 pip install -r requirements.txt
-Run the analysis:
+```
 
-Start with data-preparation.ipynb to process the raw LFW images.
+### **3. Run the Pipeline**
 
-Run model-dev.ipynb to train the clustering models.
+1. **data-preparation.ipynb** for cleaning & balancing
+2. **model-dev.ipynb** for PCA + clustering
+3. **visual.ipynb** for SHAP/LIME and visualization
 
-Use visual.ipynb to generate SHAP plots and LIME explanations.
+---
 
-🧩 Technologies Used
-Core: Python, NumPy, Pandas
+## 🧩 **Tech Stack**
 
-ML/Clustering: Scikit-learn, Imbalanced-learn (ADASYN/Tomek)
-
-XAI: SHAP, LIME
-
-Visualization: Matplotlib, Seaborn
+**Core:** Python, NumPy, Pandas
+**Clustering:** scikit-learn, MiniSom
+**Sampling:** imbalanced-learn (ADASYN, Tomek Links)
+**XAI:** SHAP, LIME
+**Visualization:** Matplotlib, Seaborn
