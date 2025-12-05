@@ -1,0 +1,38 @@
+ # --- User Requested Ignores ---
+# Ignore all CSV files (Data exports, clustering results)
+*.csv
+
+# Ignore all PDF files (Reports, documentation)
+*.pdf
+
+# --- Project Specific Data Directories ---
+# Raw and processed image datasets
+dataset/
+
+# Serialized models (Pickle files)
+*.pickle
+*.pkl
+
+# --- Python & Jupyter Standard Ignores ---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Operating System files
+.DS_Store
+Thumbs.db

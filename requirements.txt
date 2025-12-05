@@ -1,0 +1,15 @@
+pandas
+numpy
+plotly
+ipywidgets
+ipython
+opencv-python
+shap
+lime
+scikit-learn
+matplotlib
+tqdm
+imbalanced-learn
+scipy
+minisom
+seaborn
