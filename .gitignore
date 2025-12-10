@@ -4,6 +4,7 @@
 
 # Ignore all PDF files (Reports, documentation)
 *.pdf
+*.txt
 
 # --- Project Specific Data Directories ---
 # Raw and processed image datasets
